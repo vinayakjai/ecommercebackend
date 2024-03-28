@@ -30,7 +30,7 @@ const authRoute = require('./routes/auth');
 //middleware
 
 const corsOptions={
-	origin:'http://localhost:5173',
+	origin:'https://fascinating-creponne-c3953a.netlify.app',
 	credentials:true
 }
 app.use(cors(corsOptions));
