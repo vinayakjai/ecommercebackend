@@ -96,9 +96,7 @@ app.get('/logout',(req,res)=>{
 	
 })
 
-//mongoose
-mongoose.set('useFindAndModify', false);
-mongoose.set('useUnifiedTopology', true);
+
 mongoose
 	.connect(process.env.DATABASE_URL, { useNewUrlParser: true })
 	.then(() => {
