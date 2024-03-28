@@ -7,9 +7,8 @@ const bodyParser=require('body-parser')
 const dotenv = require('dotenv');
 const cookieParser=require('cookie-parser');
 
-const dotenvExpand = require('dotenv-expand');
 const myEnv = dotenv.config();
-dotenvExpand.expand(myEnv);
+
 
 //app
 const app = express();
