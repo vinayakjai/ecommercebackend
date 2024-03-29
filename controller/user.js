@@ -32,7 +32,7 @@ module.exports.getUser = (req, res) => {
 
 module.exports.addUser = async(req, res) => {
 
-     try{
+    try{
           
 	const {
 		username,email,password
@@ -54,7 +54,7 @@ module.exports.addUser = async(req, res) => {
 	let userCountInDb=await User.find({}).count();
 	userCount=userCountInDb;
 	
-	await User.create({
+	const user=await User.create({
 		id:userCount+1,
 		email,
 		username,
