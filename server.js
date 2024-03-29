@@ -30,7 +30,7 @@ const authRoute = require('./routes/auth');
 //middleware
 
 const corsOptions={
-	origin:'https://fascinating-creponne-c3953a.netlify.app',
+	origin:'https://myeeecommerce.netlify.app',
 	credentials:true
 }
 app.use(cors(corsOptions));
