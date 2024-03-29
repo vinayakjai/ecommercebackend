@@ -43,10 +43,17 @@ module.exports.addUser = async(req, res) => {
 			err:'plz provide all information for successfull sign up',
 		})
 	}
+	let isUserExists=await User.findOne({email});
+	if(isUserExists){
+		return res.status(402).json({
+			err:'user already exists',
+		})
+	}
 	let userCount=0;
 
-	let userCountInDb=await User.find().count();
-	userCount=userCountInDb
+	let userCountInDb=await User.find({}).count();
+	userCount=userCountInDb;
+	
 	const userDetails=await User.create({
 		id:userCount+1,
 		email,
@@ -54,6 +61,7 @@ module.exports.addUser = async(req, res) => {
 		password
 
 	})
+
 	if(!userDetails){
 		return res.status(402).json({
 			err:'unable to sign up user as entry is not created in database',
