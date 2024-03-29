@@ -54,19 +54,14 @@ module.exports.addUser = async(req, res) => {
 	let userCountInDb=await User.find({}).count();
 	userCount=userCountInDb;
 	
-	const userDetails=await User.create({
+	await User.create({
 		id:userCount+1,
 		email,
 		username,
 		password
 
 	})
-     
-	if(!userDetails){
-		return res.status(402).json({
-			err:'unable to sign up user as entry is not created in database',
-		})
-	}
+   
 	user.save();
 	return res.status(201).json(
 		userDetails,
