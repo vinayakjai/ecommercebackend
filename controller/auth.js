@@ -15,16 +15,16 @@ module.exports.login = (req, res) => {
 				if (user) {
 					
 					let token= jwt.sign({ user: username ,id:user.id}, 'secret_key')
-					res.cookie('token',token,{
+					return res.cookie('token',token,{
 						httpOnly:true,
 						maxAge:3600000,//1hr in miliseconds
-					}).json({
+					}).status(201).json({
 						token,
 					});
 				} else {
-					res.status(401).
+					return res.status(401).
 					res.json({
-						msg:'invalid user'
+						err:'invalid user'
 					});
 				}
 			})
