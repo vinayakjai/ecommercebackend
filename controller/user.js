@@ -1,3 +1,4 @@
+const user = require('../model/user');
 const User = require('../model/user');
 
 module.exports.getAllUser = (req, res) => {
@@ -29,8 +30,45 @@ module.exports.getUser = (req, res) => {
 		.catch((err) => console.log(err));
 };
 
-module.exports.addUser = (req, res) => {
-	
+module.exports.addUser = async(req, res) => {
+
+     try{
+          
+	const {
+		username,email,password
+	}=req.body;
+	if(!username || !password || !email){
+		return res.status(401).json({
+
+			err:'plz provide all information for successfull sign up',
+		})
+	}
+	let userCount=0;
+
+	let userCountInDb=await User.find().count();
+	userCount=userCountInDb
+	const userDetails=await User.create({
+		id:userCount+1,
+		email,
+		username,
+		password
+
+	})
+	if(!userDetails){
+		return res.status(402).json({
+			err:'unable to sign up user as entry is not created in database',
+		})
+	}
+
+	user.save();
+
+
+	 }catch(err){
+		return res.status(402).json({
+			err:'unable to sign up user',
+		})
+	 }
+	/*
 	if (typeof req.body == undefined) {
 		res.json({
 			status: 'error',
@@ -58,12 +96,14 @@ module.exports.addUser = (req, res) => {
 
 			return	res.json(user);
 			});
+			
 		
 
 		//res.json({id:User.find().count()+1,...req.body})
-	}
+		*/
+}
 		
-};
+
 
 
 module.exports.editUser = (req, res) => {
