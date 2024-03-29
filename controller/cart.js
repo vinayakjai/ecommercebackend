@@ -2,11 +2,10 @@ const Cart = require("../model/cart");
 const user = require("../model/user");
 
 const addProductToCart = async (req, res) => {
- 
   try {
     //expecting userId and quantity of product selected by user
     let { userId, quantity, productId } = req.body;
-    
+
     if (!userId || quantity < 0 || !productId) {
       return res.status(401).json({
         msg: "plz provide all information",
@@ -21,7 +20,7 @@ const addProductToCart = async (req, res) => {
     const userCart = await Cart.findOne({ userId });
 
     if (!userCart) {
-      return res.json({
+      return res.status(404).json({
         msg: "error occured while fetching cart of user",
       });
     }
@@ -43,12 +42,10 @@ const addProductToCart = async (req, res) => {
     }
 
     await userCart.save();
-    
+
     return res.status(201).json({
       products: userCart.products,
       msg: "product added to cart successfully",
-     
-      
     });
   } catch (err) {
     return res.status(402).json({
@@ -58,33 +55,29 @@ const addProductToCart = async (req, res) => {
 };
 
 const removeProductFromCart = async (req, res) => {
-  
   try {
     //expecting userId and quantity of product selected by user
     let requiredInput = req.query;
-    let userId=Number(requiredInput.userId);
-    
-    let productId=Number(requiredInput.productId);
+    let userId = Number(requiredInput.userId);
 
-    
-   
+    let productId = Number(requiredInput.productId);
+
     if (!userId || !productId) {
       return res.status(401).json({
         err: "plz provide all information",
       });
     }
-    
 
     //fetching cart info for the given userId
-    const userCart = await Cart.findOne({userId });
-  
+    const userCart = await Cart.findOne({ userId });
+
     if (!userCart) {
       return res.status(401).json({
         err: "error occured while fetching cart of user",
       });
     }
 
-    let targetIndexOfProduct=null;
+    let targetIndexOfProduct = null;
 
     let cartProducts = userCart.products;
 
@@ -101,7 +94,6 @@ const removeProductFromCart = async (req, res) => {
     return res.status(201).json({
       products: userCart.products,
       msg: "product removed from cart successfully",
-     
     });
   } catch (err) {
     return res.status(402).json({
@@ -140,7 +132,7 @@ const getUserCart = async (req, res) => {
 const createCartForUser = async (req, res) => {
   try {
     const id = req.params.id;
-    
+
     if (!id) {
       return res.status(401).json({
         msg: "plz provide userId",
@@ -149,26 +141,27 @@ const createCartForUser = async (req, res) => {
 
     let userId = Number(id);
 
- 
-    
     let userCart = await Cart.findOne({ userId });
-    if (!userCart) {
-       await Cart.create({
-        id: userId,
-        userId,
-        products: [],
-      });
-
-     
-
-      return res.status(201).json({
-        msg: "cart created successfully",
-      });
-    } else {
-      return res.status(201).json({
-        err: "cart is already created",
+    if (userCart) {
+      return res.status(402).json({
+        err: "cart already exists for user",
       });
     }
+    const cartDetails = await Cart.create({
+      id: userId,
+      userId,
+      products: [],
+    });
+
+    if (!cartDetails) {
+      return res.status(403).json({
+        err: "unable to create cart for user",
+      });
+    }
+
+    return res.status(201).json({
+      msg: "cart created successfully",
+    });
   } catch (err) {
     return res.status(401).json({
       err: `unable to create cart for user`,
@@ -200,8 +193,8 @@ const deleteUserCart = async (req, res) => {
   }
 };
 
-const deleteProductsOfCart=async(req,res)=>{
-  try{
+const deleteProductsOfCart = async (req, res) => {
+  try {
     const id = req.params.id;
 
     if (!id) {
@@ -212,133 +205,121 @@ const deleteProductsOfCart=async(req,res)=>{
 
     let userId = Number(id);
     let userCart = await Cart.findOne({ userId });
-    if (!userCart ) {
+    if (!userCart) {
       return res.status(401).json({
         err: "unable to fetch cart details",
       });
     }
 
-    if(userCart.products.length==0){
+    if (userCart.products.length == 0) {
       return res.status(301).json({
-        msg:'cart is already empty'
-      })
+        msg: "cart is already empty",
+      });
     }
 
     //deleting all products of cart
-    userCart.products=[];
-    await userCart.save()
+    userCart.products = [];
+    await userCart.save();
 
     return res.status(201).json({
-      msg:'All products removed from cart successfully'
-    })
-
-
-  }catch(err){
+      msg: "All products removed from cart successfully",
+    });
+  } catch (err) {
     return res.status(401).json({
-      err:`unable to delete Products of cart`
-    })
+      err: `unable to delete Products of cart`,
+    });
   }
-}
+};
 
-const updateQuantity=async(req,res)=>{
-  try{
-     const requiredInput=req.query;
-     let userId=Number(requiredInput.userId);
-    
-     let productId=Number(requiredInput.productId);
-     let quantity=Number(requiredInput.quantity);
-   
+const updateQuantity = async (req, res) => {
+  try {
+    const requiredInput = req.query;
+    let userId = Number(requiredInput.userId);
 
-     if(!quantity){
+    let productId = Number(requiredInput.productId);
+    let quantity = Number(requiredInput.quantity);
+
+    if (!quantity) {
       return res.status(401).json({
-        err:'provide quantity value'
-      })
-     }
+        err: "provide quantity value",
+      });
+    }
 
-     const userCart=await Cart.findOne({id:userId});
-     if(!userCart){
+    const userCart = await Cart.findOne({ id: userId });
+    if (!userCart) {
       return res.status(402).json({
-        err:'you have not created the cart yet'
-      })
-     }
-     userCart.products.map((product)=>{
-        if(product.productId==productId){
-          product.quantity=quantity;
-        }
-     })
+        err: "you have not created the cart yet",
+      });
+    }
+    userCart.products.map((product) => {
+      if (product.productId == productId) {
+        product.quantity = quantity;
+      }
+    });
 
-     userCart.save();
+    userCart.save();
 
-     return res.status(201).json({
-      msg:'quantity of product updated successfully',
-      products:userCart.products
-     })
-
-  }catch(err){
+    return res.status(201).json({
+      msg: "quantity of product updated successfully",
+      products: userCart.products,
+    });
+  } catch (err) {
     return res.status(401).json({
-      err:'unable to update quantity of user'
-    })
+      err: "unable to update quantity of user",
+    });
   }
-}
+};
 
-const calculateTotalPrice=(req,res)=>{
-  try{
-     let {products}=req.query;
-    console.log(products)
+const calculateTotalPrice = (req, res) => {
+  try {
+    let { products } = req.query;
+    console.log(products);
 
-     let totalPrice=0;
-     let discount=30;
+    let totalPrice = 0;
+    let discount = 30;
 
-     let finalPrice=null;
-     let deliveryCharge=25;
-     let shouldDiscount=true;
-     products.map((product)=>{
-      totalPrice+=product.quantity*product.productDetails.price;
-     })
-     console.log(totalPrice)
-     if(totalPrice<100){
+    let finalPrice = null;
+    let deliveryCharge = 25;
+    let shouldDiscount = true;
+    products.map((product) => {
+      totalPrice += product.quantity * product.productDetails.price;
+    });
+    console.log(totalPrice);
+    if (totalPrice < 100) {
       return res.status(201).json({
-            shouldDiscount:false,
-            deliveryCharge:null,
-            msg:'we accept orders above 100',
-            totalPrice,
-            finalPrice
-
-      })
-     }
-     if(totalPrice<199){
-      shouldDiscount=false;
+        shouldDiscount: false,
+        deliveryCharge: null,
+        msg: "we accept orders above 100",
+        totalPrice,
+        finalPrice,
+      });
+    }
+    if (totalPrice < 199) {
+      shouldDiscount = false;
       res.status(201).json({
-        msg:'discount is applicable on orders above 200',
+        msg: "discount is applicable on orders above 200",
         shouldDiscount,
         deliveryCharge,
         totalPrice,
-        finalPrice
-      })
-     }
+        finalPrice,
+      });
+    }
 
-     finalPrice=totalPrice+deliveryCharge-discount;
+    finalPrice = totalPrice + deliveryCharge - discount;
 
-     return res.status(201).json({
-      shouldDiscount:true,
+    return res.status(201).json({
+      shouldDiscount: true,
       deliveryCharge,
       discount,
       finalPrice,
       totalPrice,
-     })
-
-     
-    
-
-
-    
-  }catch(err){
+    });
+  } catch (err) {
     return res.status(402).json({
-      
-      msg:'unable to calculate price',
-    })
+      msg: "unable to calculate price",
+    });
   }
-}
+};
 module.exports = {
   addProductToCart,
   removeProductFromCart,
@@ -347,6 +328,5 @@ module.exports = {
   deleteUserCart,
   deleteProductsOfCart,
   updateQuantity,
-  calculateTotalPrice
- 
+  calculateTotalPrice,
 };
