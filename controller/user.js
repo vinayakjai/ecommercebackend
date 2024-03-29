@@ -40,7 +40,7 @@ module.exports.addUser = (req, res) => {
 		let userCount = 0;
 		
 		User.find()
-			.countDocuments(function (err, count) {
+			.count(function (err, count) {
 				userCount = count;
 			})
 			.then(() => {
