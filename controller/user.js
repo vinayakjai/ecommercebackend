@@ -64,7 +64,9 @@ module.exports.addUser = async(req, res) => {
    
 	user.save();
 	return res.status(201).json(
-		userDetails,
+		{
+			msg:'user signed up successfully',
+		}
 	)
 
 	
